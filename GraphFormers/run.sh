@@ -44,7 +44,7 @@ python main.py --mode=$mode \
     --train_data_path=data/$dataset_name/train.tsv \
     --valid_data_path=data/$dataset_name/valid.tsv \
     --test_data_path=data/$dataset_name/test.tsv \
-    --savename=GraphFormers_$dataset_name \
+    --savename=GraphFormers_$dataset_name'_'$graph_type \
     --world_size=3 --multi_world_size=4 --token_length=32 --neighbor_num=5 \
     --epochs=100 --log_steps=2 \
     --train_batch_size=50 --valid_batch_size=100 --test_batch_size=100 --label_batch_size=100 \

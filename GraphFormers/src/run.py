@@ -345,10 +345,10 @@ def get_test_embeddings(args):
 
 def test_xc(args):
     test_node_embeddings = get_test_embeddings(args)
-    test_embeddings_path = os.path.join(args.model_dir, '{}-test_embeddings.pt'.format(args.savename))
+    test_embeddings_path = os.path.join(args.model_dir, '{}test_embeddings.pt'.format(args.savename))
     torch.save(test_node_embeddings, test_embeddings_path)
 
-    label_embedding_path = os.path.join(args.model_dir, '{}-label_embeddings.pt'.format(args.savename))
+    label_embedding_path = os.path.join(args.model_dir, '{}label_embeddings.pt'.format(args.savename))
     label_embeddings = torch.load(label_embedding_path, map_location="cpu")
 
     test_node_embeddings = test_node_embeddings.cuda()
@@ -367,7 +367,7 @@ def test_xc(args):
     #import pdb; pdb.set_trace()
     score_mat = torch.cat(score_mat_list, 1)
 
-    score_mat_path = os.path.join(args.model_dir, '{}-score_mat.pt'.format(args.savename))
+    score_mat_path = os.path.join(args.model_dir, '{}score_mat.pt'.format(args.savename))
     torch.save(score_mat, score_mat_path)
     logging.info('Saving Score Matrix.')
 
