@@ -2,9 +2,9 @@
 
 ## GraphFormer
 
-Download data from https://owncloud.iitd.ac.in/nextcloud/index.php/s/2m7zQomKeNxXAZd
-This will download GraphFormer.zip, which has two folders GraphFormers/ckpt and GraphFormers/TuringModels
-Add both of them inside GraphFormer directory.
++ Download data from https://owncloud.iitd.ac.in/nextcloud/index.php/s/2m7zQomKeNxXAZd
++ This will download GraphFormer.zip, which has two folders GraphFormers/ckpt and GraphFormers/TuringModels
++ Add both of them inside GraphFormer directory.
 
 - cd GraphFormer
 - ./graphformer.sh <xc_data_path>
