@@ -1,0 +1,2 @@
+./data.sh ../../data G-LF-WikiSeeAlsoTitles-300K
+./run.sh train ../../data G-LF-AmazonTitles-1.6M similar_

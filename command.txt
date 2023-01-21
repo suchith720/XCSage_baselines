@@ -1,0 +1,8 @@
+zip -r GraphFormers.zip GraphFormers -x GraphFormers/notebooks/\* -x GraphFormers/data/\* -x GraphFormers/notebooks/\* \
+-x GraphFormers/ckpt/GraphFormers-epoch-1.pt \
+-x GraphFormers/ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K-best.pt \
+-x GraphFormers/ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K-epoch-1.pt \
+-x GraphFormers/ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K-epoch-2.pt \
+-x GraphFormers/ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K-label_embeddings.pt \
+-x GraphFormers/ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K-score_mat.pt \
+-x GraphFormers/ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K-test_embeddings.pt

@@ -1,0 +1,2 @@
+python convert_xc_to_kgcl.py --xc_dir=../../../data/G-LF-WikiSeeAlsoTitles-300K/ --save_dir=../data/G-LF-WikiSeeAlsoTitles-300K/
+python convert_xc_to_kgcl.py --xc_dir=../../../data/G-LF-WikiSeeAlsoTitles-300K/ --save_dir=../data/G-LF-WikiSeeAlsoTitles-300K/ --graph_type=graph,category
