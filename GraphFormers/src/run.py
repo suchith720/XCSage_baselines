@@ -237,8 +237,8 @@ def process_labels(model, args, label_and_neighbours):
     #import pdb; pdb.set_trace()
 
     label_embeddings_list = []
-    for step, batch in tqdm(enumerate(dataloader), total=int(len(dataset)/batch_size)):
-    #for step, batch in enumerate(dataloader):
+    #for step, batch in tqdm(enumerate(dataloader), total=int(len(dataset)/batch_size)):
+    for step, batch in enumerate(dataloader):
         if args.enable_gpu:
             for k, v in batch.items():
                 if v is not None:
@@ -276,7 +276,8 @@ def test_single_process(model, args, mode):
 
     count = 0
     metrics_total = defaultdict(float)
-    for step, batch in tqdm(enumerate(dataloader), total=int(len(dataset)/batch_size)):
+    #for step, batch in tqdm(enumerate(dataloader), total=int(len(dataset)/batch_size)):
+    for step, batch in enumerate(dataloader):
         if args.enable_gpu:
             for k, v in batch.items():
                 if v is not None:
