@@ -438,8 +438,14 @@ class Loader(BasicDataset):
                 adj_mat = sp.dok_matrix((self.n_users + self.m_items, self.n_users + self.m_items), dtype=np.float32)
                 adj_mat = adj_mat.tolil()
                 R = self.UserItemNet.tolil()
-                adj_mat[:self.n_users, self.n_users:] = R
-                adj_mat[self.n_users:, :self.n_users] = R.T
+
+                row, col = R.nonzero()
+                adj_mat[row, self.n_users+col] = R.data[:]
+                adj_mat[self.n_users+col, row] = R.T.data[:]
+
+                #adj_mat[:self.n_users, self.n_users:] = R
+                #adj_mat[self.n_users:, :self.n_users] = R.T
+
                 adj_mat = adj_mat.todok()
                 # adj_mat = adj_mat + sp.eye(adj_mat.shape[0])
 
