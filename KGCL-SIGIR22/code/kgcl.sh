@@ -11,8 +11,8 @@ then
     exit
 fi
 
-./data.sh $main_dir G-LF-WikiSeeAlsoTitles-300K graph,category
+#./data.sh $main_dir G-LF-WikiSeeAlsoTitles-300K graph,category
 ./run.sh G-LF-WikiSeeAlsoTitles-300K
 
-./data.sh $main_dir G-LF-AmazonTitles-1.6M similar_graph,also_view_graph
-./run.sh G-LF-AmazonTitles-1.6M
+#./data.sh $main_dir G-LF-AmazonTitles-1.6M similar_graph,also_view_graph
+#./run.sh G-LF-AmazonTitles-1.6M

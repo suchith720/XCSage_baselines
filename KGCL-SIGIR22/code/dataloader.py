@@ -437,11 +437,12 @@ class Loader(BasicDataset):
                 s = time()
                 adj_mat = sp.dok_matrix((self.n_users + self.m_items, self.n_users + self.m_items), dtype=np.float32)
                 adj_mat = adj_mat.tolil()
-                R = self.UserItemNet.tolil()
+                R = self.UserItemNet.tocsr()
 
+                # import pdb; pdb.set_trace()
                 row, col = R.nonzero()
-                adj_mat[row, self.n_users+col] = R.data[:]
-                adj_mat[self.n_users+col, row] = R.T.data[:]
+                adj_mat[row, self.n_users+col] = R.data[None, :]
+                adj_mat[self.n_users+col, row] = R.T.data[None, :]
 
                 #adj_mat[:self.n_users, self.n_users:] = R
                 #adj_mat[self.n_users:, :self.n_users] = R.T
