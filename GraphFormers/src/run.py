@@ -224,6 +224,7 @@ def train(local_rank, args, end, load):
 
 @torch.no_grad()
 def process_labels(model, args, label_and_neighbours):
+    model.eval()
     dataset = DatasetForLabels(label_and_neighbours_list=label_and_neighbours)
 
     data_collator = DataCollatorForMatching(mlm=args.mlm, neighbor_num=args.neighbor_num,
@@ -231,7 +232,7 @@ def process_labels(model, args, label_and_neighbours):
                                             is_label=True)
 
     #dataloader = SingleProcessDataLoader(dataset, batch_size=args.label_batch_size, collate_fn=data_collator, blocking=True)
-    dataloader = SingleProcessDataLoader(dataset, batch_size=args.label_batch_size, collate_fn=data_collator)
+    dataloader = SingleProcessDataLoader(dataset, batch_size=args.label_batch_size, collate_fn=data_collator, drop_last=False, blocking=True)
     batch_size = args.label_batch_size
 
     #import pdb; pdb.set_trace()
@@ -323,15 +324,7 @@ def read_test_and_neighbours(args):
 
     return test_and_neighbours
 
-def get_test_embeddings(args):
-    model = load_bert(args)
-    logging.info('loading model: {}'.format(args.model_type))
-    model = model.cuda()
-
-    checkpoint = torch.load(args.load_ckpt_name, map_location="cpu")
-    model.load_state_dict(checkpoint, strict=False)
-    logging.info('load ckpt:{}'.format(args.load_ckpt_name))
-
+def get_test_embeddings(model, args):
     #import pdb; pdb.set_trace()
 
     # tst_raw_text = extract_title_data(args.tst_raw_text)
@@ -345,9 +338,31 @@ def get_test_embeddings(args):
     return test_node_embeddings
 
 def test_xc(args):
-    test_node_embeddings = get_test_embeddings(args)
+    model = load_bert(args)
+    logging.info('loading model: {}'.format(args.model_type))
+    model = model.cuda()
+
+    #debug
+    #import pdb; pdb.set_trace()
+    #debug
+
+    if (args.load_ckpt_name is not None) and (args.load_ckpt_name != ""):
+        checkpoint = torch.load(args.load_ckpt_name, map_location="cpu")
+        model.load_state_dict(checkpoint, strict=True)
+        logging.info('load ckpt:{}'.format(args.load_ckpt_name))
+
+    test_node_embeddings = get_test_embeddings(model, args)
     test_embeddings_path = os.path.join(args.model_dir, '{}test_embeddings.pt'.format(args.savename))
     torch.save(test_node_embeddings, test_embeddings_path)
+    logging.info(f"Test embeddings saved to {test_embeddings_path}")
+
+    label_and_neighbours = read_label_and_neighbours(args)
+    label_embeddings = process_labels(model, args, label_and_neighbours)
+    label_embedding_path = os.path.join(args.model_dir, '{}label_embeddings.pt'.format(args.savename))
+    torch.save(label_embeddings, label_embedding_path)
+    logging.info(f"Label embeddings saved to {label_embedding_path}")
+
+    return
 
     label_embedding_path = os.path.join(args.model_dir, '{}label_embeddings.pt'.format(args.savename))
     label_embeddings = torch.load(label_embedding_path, map_location="cpu")

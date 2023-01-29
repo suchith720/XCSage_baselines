@@ -12,12 +12,6 @@ fi
 # graph_type=""
 
 dataset_name=$2
-if [ $dataset_name != "G-LF-AmazonTitles-1.6M" ] && [ $dataset_name != "G-LF-WikiSeeAlsoTitles-300K" ]
-then
-    echo ERROR:: dataset_name should be one of G-LF-AmazonTitles-1.6M or G-LF-WikiSeeAlsoTitles-300K.
-    exit
-fi
-
 main_dir=$1/$dataset_name
 if [ ! -e $main_dir ]
 then
@@ -25,16 +19,16 @@ then
     exit
 fi
 
-if [ $# -gt 3 ]
+if [ $# -gt 2 ]
 then
-    save_dir=$4
+    save_dir=$3/$dataset_name
 else
     save_dir=./data/$dataset_name
 fi
 
-if [ $# -gt 2 ]
+if [ $# -gt 3 ]
 then
-    graph_type=$3
+    graph_type=$4
     if [ $graph_type != "similar_" ] && [ $graph_type != "also_view_" ]
     then
         echo ERROR:: Graph type should be in : {"similar_", "also_view_"}

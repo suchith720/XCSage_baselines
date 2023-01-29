@@ -14,9 +14,10 @@ if __name__ == "__main__":
     #gpus = ','.join([str(_ + 1) for _ in range(1)])
     #os.environ["CUDA_VISIBLE_DEVICES"] = gpus
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
+    #os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12394'
+    os.environ['MASTER_PORT'] = '12499'
 
     device_list = ""
     for i, device_id in enumerate(os.environ['CUDA_VISIBLE_DEVICES'].split(',')):
@@ -34,7 +35,7 @@ if __name__ == "__main__":
     #args.mode = 'train'
     Path(args.model_dir).mkdir(parents=True, exist_ok=True)
 
-    cont = True
+    cont = False
 
     #import pdb; pdb.set_trace()
     if args.mode == 'train':

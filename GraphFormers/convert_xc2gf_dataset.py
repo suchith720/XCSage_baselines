@@ -46,11 +46,18 @@ if __name__ == '__main__':
     Convert dataset.
     """
     query_and_neighbours, key_and_neighbours = xc_to_graphformer(trn_x_y_mat,
-                                                                 graph_trn_x_y_mat,
-                                                                 graph_lbl_x_y_mat,
-                                                                 trn_raw_txt,
-                                                                 lbl_raw_txt,
-                                                                 graph_raw_txt)
+                                                                graph_trn_x_y_mat,
+                                                                graph_lbl_x_y_mat,
+                                                                trn_raw_txt,
+                                                                lbl_raw_txt,
+                                                                graph_raw_txt)
+
+#     query_and_neighbours, key_and_neighbours = xc_to_graphformer_2(trn_x_y_mat,
+#                                                                  graph_trn_x_y_mat,
+#                                                                  graph_lbl_x_y_mat,
+#                                                                  trn_raw_txt,
+#                                                                  lbl_raw_txt,
+#                                                                  graph_raw_txt)
 
     """
     Save dataset.
@@ -61,21 +68,23 @@ if __name__ == '__main__':
     valid_perc = args.valid_perc
 
     if save_valid:
-        random.shuffle(query_and_neighbours)
-        random.shuffle(key_and_neighbours)
-
+        def get_ele(lol, idx):
+            return list(map(lambda x: lol[x], idx))
+        
+        idx = np.arange(len(query_and_neighbours))
+        print(len(idx))
+        random.shuffle(idx)
+        
         valid_len = int(len(query_and_neighbours)*valid_perc)
 
-        query_and_neighbours_train = query_and_neighbours[:-valid_len]
-        query_and_neighbours_valid = query_and_neighbours[-valid_len:]
+        query_and_neighbours_train = get_ele(query_and_neighbours, idx[:-valid_len])
+        query_and_neighbours_valid = get_ele(query_and_neighbours, idx[-valid_len:])
 
-        key_and_neighbours_train = key_and_neighbours[:-valid_len]
-        key_and_neighbours_valid = key_and_neighbours[-valid_len:]
+        key_and_neighbours_train = get_ele(key_and_neighbours, idx[:-valid_len])
+        key_and_neighbours_valid = get_ele(key_and_neighbours, idx[-valid_len:])
 
         save_graphformer_data(save_path, query_and_neighbours_train, key_and_neighbours_train)
         save_graphformer_data(valid_path, query_and_neighbours_valid, key_and_neighbours_valid)
-
-
     else:
         save_graphformer_data(save_path, query_and_neighbours, key_and_neighbours)
 

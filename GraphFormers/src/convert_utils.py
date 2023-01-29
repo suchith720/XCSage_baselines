@@ -89,6 +89,30 @@ def xc_to_graphformer(trn_x_y, graph_trn_x_y, graph_lbl_x_y, trn_txt, lbl_txt, g
     return query_and_neighbours_list, key_and_neighbours_list
 
 
+def xc_to_graphformer_2(trn_x_y, graph_trn_x_y, graph_lbl_x_y, trn_txt, lbl_txt, graph_txt):
+    query_and_neighbours_list, key_and_neighbours_list = [], []
+
+    for c in tqdm(range(trn_x_y.shape[1]), total=trn_x_y.shape[1]):
+        #import pdb; pdb.set_trace()
+        query_and_neighbours, key_and_neighbours = [], []
+        col = trn_x_y[:, c].tocsc()
+        rows = col.indices
+
+        key = lbl_txt[c]
+        key_and_neighbours.append(key)
+        key_and_neighbours.extend(get_neighbours(c, graph_lbl_x_y, graph_txt))
+
+        r = np.random.choice(rows)
+        query = trn_txt[r]
+        query_and_neighbours.append(query)
+        query_and_neighbours.extend(get_neighbours(r, graph_trn_x_y, graph_txt))
+
+        query_and_neighbours_list.append(query_and_neighbours)
+        key_and_neighbours_list.append(key_and_neighbours)
+
+    return query_and_neighbours_list, key_and_neighbours_list
+
+
 def xc_to_graphformer_labels(graph_lbl_x_y, lbl_txt, graph_txt):
     label_and_neighbours_list = []
     for r, row in tqdm(enumerate(graph_lbl_x_y), total=len(lbl_txt)):
