@@ -23,6 +23,8 @@ output : KGCL-SIGIR22/code/output/output/kgc-<dataset_name>-64.pth.tar
 ## ELIAS
 This code required BOW representation of the datapoint, which you can download from here: [G-LF-WikiSeeAlsoTitles-300K](https://owncloud.iitd.ac.in/nextcloud/index.php/s/YqgxmoQ8tt25445), [G-LF-AmazonTitles-1.6M](https://owncloud.iitd.ac.in/nextcloud/index.php/s/dXbPkT6xCcybANz)
 
+Use `environment.yml` to create anaconda environment.
+
 - cd ELIAS/
 - ./elias.sh <xc_data_path>
 
