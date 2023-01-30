@@ -1,3 +1,5 @@
+import faulthandler; faulthandler.enable()
+
 from torch_sparse.tensor import to
 from tqdm import tqdm
 from contrast import Contrast

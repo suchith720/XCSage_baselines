@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=1,3
+export CUDA_VISIBLE_DEVICES=3
 
 if [ $# -lt 3 ]
 then
@@ -50,14 +50,15 @@ python main.py --mode=$mode \
     --world_size=1 --multi_world_size=1 --token_length=32 --neighbor_num=5 \
     --epochs=100 --log_steps=2 \
     --train_batch_size=50 --valid_batch_size=100 \
-    --test_batch_size=100 --label_batch_size=100 \
+    --test_batch_size=100 --embed_batch_size=100 \
+    --sm_batch_size=1024 \
     --graph_lbl_x_y=$main_dir/$graph_type'graph_lbl_X_Y.txt' \
     --lbl_raw_text=$main_dir/raw_data/label.raw.txt \
     --graph_raw_text=$main_dir/raw_data/$graph_type'graph.raw.txt' \
     --tst_raw_text=$main_dir/raw_data/test.raw.txt \
     --tst_x_y=$main_dir/$graph_type'graph_tst_X_Y.txt' \
+    --load_ckpt_name=ckpt/GraphFormers_$dataset_name'_'$graph_type'_3_'-epoch-1.pt \
     --lr=1e-5 --top_k=3000
-    #--load_ckpt_name=ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K-epoch-3.pt \
 
 
 #for epoch in $(seq 1 3)
@@ -66,7 +67,7 @@ python main.py --mode=$mode \
 #        --train_data_path=data/$dataset_name/train.tsv \
 #        --valid_data_path=data/$dataset_name/valid.tsv \
 #        --test_data_path=data/$dataset_name/test.tsv \
-#        --savename=GraphFormers_$dataset_name'_'$graph_type$epoch'_' \
+#        --savename=GraphFormers_$dataset_name'_'$graph_type$epoch'_3_' \
 #        --world_size=3 --multi_world_size=4 --token_length=32 --neighbor_num=5 \
 #        --epochs=100 --log_steps=2 \
 #        --train_batch_size=50 --valid_batch_size=100 --test_batch_size=100 --label_batch_size=100 \
@@ -75,7 +76,7 @@ python main.py --mode=$mode \
 #        --graph_raw_text=$main_dir/raw_data/$graph_type'graph.raw.txt' \
 #        --tst_raw_text=$main_dir/raw_data/test.raw.txt \
 #        --tst_x_y=$main_dir/tst_X_Y.txt \
-#        --load_ckpt_name=ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K-epoch-$epoch.pt \
+#        --load_ckpt_name=ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K'_3_'-epoch-$epoch.pt \
 #        --top_k=3000
 #done
 

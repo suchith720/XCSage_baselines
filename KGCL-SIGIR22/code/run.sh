@@ -1,6 +1,6 @@
 if [ $# -lt 1 ]
 then
-    echo ./run "<dataset_name>"
+    echo ./run "<dataset_name> <model>"
     exit
 fi
 
@@ -11,4 +11,12 @@ then
     exit
 fi
 
-python main.py --dataset=$dataset_name --topks=[3000]
+model_type=$2
+if [ $model_type != 'kgcl' ] && [ $model_type != 'lgn' ] && [ $model_type != 'sgl' ]
+then
+    echo ERROR:: Model type should be kgcl, lgn or sgl.
+    exit
+fi
+
+python main.py --dataset=$dataset_name --topks=[3000] --model=$model_type --bpr_batch=1000 \
+    --testbatch=1000

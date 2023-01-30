@@ -13,7 +13,8 @@ def parse_args():
     parser.add_argument("--valid_batch_size", type=int, default=300)
     parser.add_argument("--test_data_path", type=str, default="./data/dblp_graph_data/test.tsv")
     parser.add_argument("--test_batch_size", type=int, default=300)
-    parser.add_argument("--label_batch_size", type=int, default=300)
+    parser.add_argument("--embed_batch_size", type=int, default=300)
+    parser.add_argument("--sm_batch_size", type=int, default=1024)
 
     parser.add_argument("--model_dir", type=str, default='./ckpt')  # path to save
     parser.add_argument("--enable_gpu", type=utils.str2bool, default=True)

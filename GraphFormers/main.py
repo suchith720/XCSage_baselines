@@ -5,17 +5,13 @@ from pathlib import Path
 import torch.multiprocessing as mp
 
 from src.parameters import parse_args
-from src.run import train, test, test_xc, read_label_and_neighbours, get_test_embeddings
+from src.run import train, test, test_xc, extract_node_and_neighbours, get_node_embeddings
 from src.utils import setuplogging
 
 if __name__ == "__main__":
 
     setuplogging()
-    #gpus = ','.join([str(_ + 1) for _ in range(1)])
-    #os.environ["CUDA_VISIBLE_DEVICES"] = gpus
 
-    #os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
-    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     os.environ['MASTER_ADDR'] = 'localhost'
     os.environ['MASTER_PORT'] = '12499'
 

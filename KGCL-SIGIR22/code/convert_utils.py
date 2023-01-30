@@ -98,6 +98,7 @@ def extract_xc_node_id(filename):
 #             kg_str += f'{node_a} {relation} {node_b}\n'
 #     return kg_str
 
+
 def create_knowledge_graph(graphs, graph_ids, save_dir):
     os.makedirs(save_dir, exist_ok=True)
 

@@ -9,30 +9,30 @@ import torch.distributed as dist
 from torch.utils.data.dataset import IterableDataset
 from transformers import BertTokenizerFast
 
-class DatasetForLabels(IterableDataset):
+class DatasetForNodeAndNeighbours(IterableDataset):
     def __init__(
             self,
-            label_and_neighbours_list: list,
+            node_and_neighbours_list: list,
             tokenizer: Union[BertTokenizerFast, str] = "bert-base-uncased",
     ):
 
-        self.label_and_neighbours_list = label_and_neighbours_list
+        self.node_and_neighbours_list = node_and_neighbours_list
         if isinstance(tokenizer, str):
             self.tokenizer = BertTokenizerFast.from_pretrained(tokenizer)
         else:
             self.tokenizer = tokenizer
 
-    def process(self, label_and_neighbours):
-        token_label_and_neighbours = self.tokenizer.batch_encode_plus(label_and_neighbours, add_special_tokens=False)[
+    def process(self, node_and_neighbours):
+        token_node_and_neighbours = self.tokenizer.batch_encode_plus(node_and_neighbours, add_special_tokens=False)[
             'input_ids']
-        return token_label_and_neighbours
+        return token_node_and_neighbours
 
     def __len__(self):
-        return len(self.label_and_neighbours_list)
+        return len(self.node_and_neighbours_list)
 
     def __iter__(self):
-        for label_and_neighbours in self.label_and_neighbours_list:
-            yield self.process(label_and_neighbours)
+        for node_and_neighbours in self.node_and_neighbours_list:
+            yield self.process(node_and_neighbours)
 
 
 class DatasetForMatching(IterableDataset):

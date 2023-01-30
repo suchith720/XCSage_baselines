@@ -11,7 +11,7 @@ import torch.distributed as dist
 import torch.optim as optim
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from src.data_handler import DatasetForMatching, DatasetForLabels, \
+from src.data_handler import DatasetForMatching, DatasetForNodeAndNeighbours, \
     DataCollatorForMatching, SingleProcessDataLoader, \
     MultiProcessDataLoader
 from src.models.tnlrv3.configuration_tnlrv3 import TuringNLRv3Config
@@ -23,17 +23,9 @@ from tqdm import tqdm
 def setup(rank, args):
     # initialize the process group
     dist.init_process_group("nccl", rank=rank, world_size=args.world_size)
-
-    # device_list = json.loads(os.environ['GPU_DEVICE_IDS'])
-    # device_list = list(map(int, device_list))
-
-    print(f"Rank : {rank}")
-    # print(f"Device number : {device_list[rank%len(device_list)]}")
-
-    #torch.cuda.set_device(device_list[rank%len(device_list)])
+    print(f"Process rank : {rank}")
     torch.cuda.set_device(rank)
 
-    # Explicitly setting seed
     torch.manual_seed(args.random_seed)
     np.random.seed(args.random_seed)
     random.seed(args.random_seed)
@@ -56,24 +48,6 @@ def load_bert(args):
         from src.models.modeling_graphsage import GraphSageMaxForNeighborPredict
         model = GraphSageMaxForNeighborPredict.from_pretrained(args.model_name_or_path, config=config)
     return model
-
-
-def read_label_and_neighbours(args):
-    graph_label_file = args.graph_lbl_x_y
-    label_text_file = args.lbl_raw_text
-    graph_text_file = args.graph_raw_text
-
-    graph_lbl_x_y_str = read_data(graph_label_file)
-    graph_lbl_x_y_mat = extract_xc_data(graph_lbl_x_y_str)
-
-    lbl_raw_txt = extract_title_data(label_text_file)
-    graph_raw_txt = extract_title_data(graph_text_file)
-
-    label_and_neighbours = xc_to_graphformer_labels(graph_lbl_x_y_mat,
-                                                    lbl_raw_txt,
-                                                    graph_raw_txt)
-
-    return label_and_neighbours
 
 
 
@@ -101,15 +75,6 @@ def train(local_rank, args, end, load):
         else:
             ddp_model = model
 
-        label_and_neighbours = read_label_and_neighbours(args)
-
-        # Save label embeddings start
-        # label_embeddings = process_labels(model, args, label_and_neighbours)
-        # label_embedding_path = os.path.join(args.model_dir, '{}-label_embeddings.pt'.format(args.savename))
-        # torch.save(label_embeddings, label_embedding_path)
-        # logging.info(f"Label embeddings saved to {label_embedding_path}")
-        # Save label embeddings end
-
         optimizer = optim.Adam([{'params': ddp_model.parameters(), 'lr': args.lr}])
 
         data_collator = DataCollatorForMatching(mlm=args.mlm, neighbor_num=args.neighbor_num,
@@ -133,8 +98,6 @@ def train(local_rank, args, end, load):
             else:
                 dataloader = SingleProcessDataLoader(dataset, batch_size=args.train_batch_size,
                                                      collate_fn=data_collator, blocking=True)
-
-            # for step, batch in tqdm(enumerate(dataloader), total=int(len(dataset)/args.train_batch_size)):
 
             for step, batch in enumerate(dataloader):
                 if args.enable_gpu:
@@ -182,13 +145,6 @@ def train(local_rank, args, end, load):
                     torch.save(model.state_dict(), ckpt_path)
                     logging.info(f"Model saved to {ckpt_path}")
 
-                    # Save label embeddings start
-                    label_embeddings = process_labels(model, args, label_and_neighbours)
-                    label_embedding_path = os.path.join(args.model_dir, '{}-label_embeddings.pt'.format(args.savename))
-                    torch.save(label_embeddings, label_embedding_path)
-                    logging.info(f"Label embeddings saved to {label_embedding_path}")
-                    # Save label embeddings end
-
                     best_acc = acc
                     best_count = 0
                 else:
@@ -223,41 +179,6 @@ def train(local_rank, args, end, load):
 
 
 @torch.no_grad()
-def process_labels(model, args, label_and_neighbours):
-    model.eval()
-    dataset = DatasetForLabels(label_and_neighbours_list=label_and_neighbours)
-
-    data_collator = DataCollatorForMatching(mlm=args.mlm, neighbor_num=args.neighbor_num,
-                                            token_length=args.token_length, random_seed=args.random_seed,
-                                            is_label=True)
-
-    #dataloader = SingleProcessDataLoader(dataset, batch_size=args.label_batch_size, collate_fn=data_collator, blocking=True)
-    dataloader = SingleProcessDataLoader(dataset, batch_size=args.label_batch_size, collate_fn=data_collator, drop_last=False, blocking=True)
-    batch_size = args.label_batch_size
-
-    #import pdb; pdb.set_trace()
-
-    label_embeddings_list = []
-    #for step, batch in tqdm(enumerate(dataloader), total=int(len(dataset)/batch_size)):
-    for step, batch in enumerate(dataloader):
-        if args.enable_gpu:
-            for k, v in batch.items():
-                if v is not None:
-                    batch[k] = v.cuda(non_blocking=True)
-
-        label_embeddings = model.infer(batch['input_ids_query_and_neighbors_batch'],
-                                       batch['attention_mask_query_and_neighbors_batch'],
-                                       batch['mask_query_and_neighbors_batch'])
-
-        label_embeddings_list.append(label_embeddings.data.cpu())
-
-    label_embeddings = torch.cat(label_embeddings_list, 0)
-    model.train()
-    return label_embeddings
-
-
-
-@torch.no_grad()
 def test_single_process(model, args, mode):
     assert mode in {"valid", "test"}
     model.eval()
@@ -266,18 +187,15 @@ def test_single_process(model, args, mode):
                                             token_length=args.token_length, random_seed=args.random_seed)
     if mode == "valid":
         dataset = DatasetForMatching(file_path=args.valid_data_path)
-        #dataloader = SingleProcessDataLoader(dataset, batch_size=args.valid_batch_size, collate_fn=data_collator, blocking=True)
         dataloader = SingleProcessDataLoader(dataset, batch_size=args.valid_batch_size, collate_fn=data_collator)
         batch_size = args.valid_batch_size
     elif mode == "test":
         dataset = DatasetForMatching(file_path=args.test_data_path)
-        #dataloader = SingleProcessDataLoader(dataset, batch_size=args.test_batch_size, collate_fn=data_collator, blocking=True)
         dataloader = SingleProcessDataLoader(dataset, batch_size=args.test_batch_size, collate_fn=data_collator)
         batch_size = args.test_batch_size
 
     count = 0
     metrics_total = defaultdict(float)
-    #for step, batch in tqdm(enumerate(dataloader), total=int(len(dataset)/batch_size)):
     for step, batch in enumerate(dataloader):
         if args.enable_gpu:
             for k, v in batch.items():
@@ -307,84 +225,75 @@ def test(args):
     test_single_process(model, args, "test")
 
 
-def read_test_and_neighbours(args):
-    tst_x_y_file = args.tst_x_y
-    tst_text_file = args.tst_raw_text
-    graph_text_file = args.graph_raw_text
+@torch.no_grad()
+def get_node_embeddings(model, args, node_and_neighbours):
+    model.eval()
+    dataset = DatasetForNodeAndNeighbours(node_and_neighbours_list=node_and_neighbours)
 
-    tst_x_y_str = read_data(tst_x_y_file)
-    tst_x_y_mat = extract_xc_data(tst_x_y_str)
+    data_collator = DataCollatorForMatching(mlm=args.mlm, neighbor_num=args.neighbor_num,
+                                            token_length=args.token_length, random_seed=args.random_seed,
+                                            is_label=True)
 
-    tst_raw_txt = extract_title_data(tst_text_file)
-    graph_raw_txt = extract_title_data(graph_text_file)
+    dataloader = SingleProcessDataLoader(dataset, batch_size=args.embed_batch_size,
+                                         collate_fn=data_collator, drop_last=False,
+                                         blocking=True)
+    node_embeddings = torch.zeros((len(dataset), model.config.hidden_size), device='cpu')
+    for step, batch in enumerate(dataloader):
+        if args.enable_gpu:
+            for k, v in batch.items():
+                if v is not None:
+                    batch[k] = v.cuda(non_blocking=True)
 
-    test_and_neighbours = xc_to_graphformer_labels(tst_x_y_mat,
-                                                    tst_raw_txt,
-                                                    graph_raw_txt)
+        node_embed = model.infer(batch['input_ids_query_and_neighbors_batch'],
+                                 batch['attention_mask_query_and_neighbors_batch'],
+                                 batch['mask_query_and_neighbors_batch'])
 
-    return test_and_neighbours
+        bs = batch['input_ids_query_and_neighbors_batch'].shape[0]
+        node_embeddings[step*bs:(step+1)*bs] = node_embed.cpu()
 
-def get_test_embeddings(model, args):
-    #import pdb; pdb.set_trace()
+    model.train()
 
-    # tst_raw_text = extract_title_data(args.tst_raw_text)
-    # test_node = []
-    # for raw_text in tst_raw_text:
-    #     test_node.append([raw_text])
-    test_and_neighbours = read_test_and_neighbours(args)
-
-    test_node_embeddings = process_labels(model, args,
-                                          test_and_neighbours)
-    return test_node_embeddings
+    return node_embeddings
 
 def test_xc(args):
     model = load_bert(args)
     logging.info('loading model: {}'.format(args.model_type))
     model = model.cuda()
 
-    #debug
-    #import pdb; pdb.set_trace()
-    #debug
-
     if (args.load_ckpt_name is not None) and (args.load_ckpt_name != ""):
         checkpoint = torch.load(args.load_ckpt_name, map_location="cpu")
         model.load_state_dict(checkpoint, strict=True)
         logging.info('load ckpt:{}'.format(args.load_ckpt_name))
 
-    test_node_embeddings = get_test_embeddings(model, args)
-    test_embeddings_path = os.path.join(args.model_dir, '{}test_embeddings.pt'.format(args.savename))
-    torch.save(test_node_embeddings, test_embeddings_path)
-    logging.info(f"Test embeddings saved to {test_embeddings_path}")
-
-    label_and_neighbours = read_label_and_neighbours(args)
-    label_embeddings = process_labels(model, args, label_and_neighbours)
+    #computing label embeddings
+    label_and_neighbours = extract_node_and_neighbours(args.graph_lbl_x_y, args.lbl_raw_text, args.graph_raw_text)
+    label_embeddings = get_node_embeddings(model, args, label_and_neighbours)
     label_embedding_path = os.path.join(args.model_dir, '{}label_embeddings.pt'.format(args.savename))
     torch.save(label_embeddings, label_embedding_path)
     logging.info(f"Label embeddings saved to {label_embedding_path}")
 
+    #computing test embeddings
+    test_and_neighbours = extract_node_and_neighbours(args.tst_x_y, args.tst_raw_text, args.graph_raw_text)
+    test_embeddings = get_node_embeddings(model, args, test_and_neighbours)
+    test_embeddings_path = os.path.join(args.model_dir, '{}test_embeddings.pt'.format(args.savename))
+    torch.save(test_embeddings, test_embeddings_path)
+    logging.info(f"Test embeddings saved to {test_embeddings_path}")
+
     return
 
-    label_embedding_path = os.path.join(args.model_dir, '{}label_embeddings.pt'.format(args.savename))
-    label_embeddings = torch.load(label_embedding_path, map_location="cpu")
-
-    test_node_embeddings = test_node_embeddings.cuda()
-
-    batch_size = args.test_batch_size
-    score_mat_list = []
 
     print("Computing Score Matrix..")
-    for i in tqdm(range(0, label_embeddings.shape[0], batch_size), total=int(label_embeddings.shape[0]/batch_size)):
-    #for i in range(0, label_embeddings.shape[0], batch_size):
-        label_embed = label_embeddings[i:i+batch_size].cuda()
-        score_mat = test_node_embeddings@label_embed.t()
-        score_mat = torch.argsort(score_mat, dim=1, descending=True)[:, :args.top_k]
-        score_mat_list.append(score_mat.cpu())
+    test_dataloader = torch.utils.data.DataLoader(test_embeddings, batch_size=args.sm_batch_size,
+                                                  shuffle=False, num_workers=4)
 
-    #import pdb; pdb.set_trace()
-    score_mat = torch.cat(score_mat_list, 1)
+    #TODO: Complete the code for computing the scores.“
+    scores, indices = [], []
+    classifier = label_embeddings.cuda().T
+    for test_embed in tqdm(test_dataloader):
+        s = torch.mm(test_embed, classifier)
+        score, index = torch.topk(s, k=100)
+        scores.append(score.detach().cpu().numpy())
+        indices.append(index.detach().cpu().numpy())
 
-    score_mat_path = os.path.join(args.model_dir, '{}score_mat.pt'.format(args.savename))
-    torch.save(score_mat, score_mat_path)
-    logging.info('Saving Score Matrix.')
 
 

@@ -113,21 +113,6 @@ def xc_to_graphformer_2(trn_x_y, graph_trn_x_y, graph_lbl_x_y, trn_txt, lbl_txt,
     return query_and_neighbours_list, key_and_neighbours_list
 
 
-def xc_to_graphformer_labels(graph_lbl_x_y, lbl_txt, graph_txt):
-    label_and_neighbours_list = []
-    for r, row in tqdm(enumerate(graph_lbl_x_y), total=len(lbl_txt)):
-        label_and_neighbours = []
-        cols = row.indices
-        label = lbl_txt[r]
-        label_and_neighbours.append(label)
-        label_and_neighbours.extend(get_neighbours(r, graph_lbl_x_y,
-                                                   graph_txt))
-
-        label_and_neighbours_list.append(label_and_neighbours)
-
-    return label_and_neighbours_list
-
-
 def save_graphformer_data(filename, query_and_neighbours_list, key_and_neighbours_list):
     with open(filename, mode='w', encoding='utf-8') as file:
         for query_and_neighbours, key_and_neighbours in zip(query_and_neighbours_list, key_and_neighbours_list):
@@ -135,5 +120,35 @@ def save_graphformer_data(filename, query_and_neighbours_list, key_and_neighbour
             key_and_neighbours_txt = "|'|".join(key_and_neighbours)
             line = f"{query_and_neighbours_txt}\t{key_and_neighbours_txt}\n"
             file.write(line)
+
+
+def extract_node_and_neighbours(node_graph_file, node_txt_file, neighbour_txt_file):
+    node_graph, node_txt, neighbour_txt = read_xc_node_data(node_graph_file,
+                                                            node_txt_file,
+                                                            neighbour_txt_file)
+    return get_node_and_neighbours(node_graph, node_txt, neighbour_txt)
+
+
+def read_xc_node_data(node_graph_file, node_txt_file, neighbour_txt_file):
+    node_graph_str = read_data(node_graph_file)
+    node_graph = extract_xc_data(node_graph_str)
+
+    node_txt = extract_title_data(node_txt_file)
+    neighbour_txt = extract_title_data(neighbour_txt_file)
+    return node_graph, node_txt, neighbour_txt
+
+
+def get_node_and_neighbours(node_graph, node_txt, neighbour_txt):
+    node_and_neighbours_list = []
+    for r in tqdm(range(len(node_txt))):
+        node_and_neighbours = []
+
+        label = node_txt[r]
+        node_and_neighbours.append(label)
+        node_and_neighbours.extend(get_neighbours(r, node_graph,
+                                                   neighbour_txt))
+
+        node_and_neighbours_list.append(node_and_neighbours)
+    return node_and_neighbours_list
 
 
