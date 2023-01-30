@@ -49,7 +49,7 @@ python main.py --mode=$mode \
     --savename=GraphFormers_$dataset_name'_'$graph_type'_3_' \
     --world_size=1 --multi_world_size=1 --token_length=32 --neighbor_num=5 \
     --epochs=100 --log_steps=2 \
-    --train_batch_size=256 --valid_batch_size=100 \
+    --train_batch_size=50 --valid_batch_size=100 \
     --test_batch_size=100 --label_batch_size=100 \
     --graph_lbl_x_y=$main_dir/$graph_type'graph_lbl_X_Y.txt' \
     --lbl_raw_text=$main_dir/raw_data/label.raw.txt \
@@ -58,7 +58,7 @@ python main.py --mode=$mode \
     --tst_x_y=$main_dir/$graph_type'graph_tst_X_Y.txt' \
     --lr=1e-5 --top_k=3000
     #--load_ckpt_name=ckpt/GraphFormers_G-LF-WikiSeeAlsoTitles-300K-epoch-3.pt \
-    
+
 
 #for epoch in $(seq 1 3)
 #do
