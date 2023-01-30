@@ -11,8 +11,8 @@ then
 fi
 
 #./data.sh $1 G-LF-WikiSeeAlsoTitles-300K ./full_data
-#./run.sh train $1 G-LF-WikiSeeAlsoTitles-300K
-./run.sh test_xc $1 G-LF-WikiSeeAlsoTitles-300K
+./run.sh train $1 G-LF-WikiSeeAlsoTitles-300K
+#./run.sh test_xc $1 G-LF-WikiSeeAlsoTitles-300K
 
 #./data.sh $1 G-LF-AmazonTitles-1.6M ./full_data also_view_
 #./run.sh train $1 G-LF-AmazonTitles-1.6M also_view_

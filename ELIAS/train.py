@@ -22,7 +22,7 @@ if torch.__version__ > "1.11":
 
 # Config and runtime argument parsing
 args = load_config_and_runtime_args(sys.argv)
-    
+
 args.device = str(accelerator.device)
 args.amp = accelerator.state.use_fp16
 args.num_gpu = accelerator.state.num_processes
@@ -48,10 +48,10 @@ data_manager = DATA_MANAGERS[args.data_manager](args)
 trn_loader, val_loader, _ = data_manager.build_data_loaders()
 
 if IS_MAIN_PROC:
-    wandb.init(project=f'{args.project}_{args.dataset}', name=args.expname)
-    wandb.config.update(args)
-    args.wandb_id = wandb.run.id
-    logging.info(f'Wandb ID: {args.wandb_id}')
+    #wandb.init(project=f'{args.project}_{args.dataset}', name=args.expname)
+    #wandb.config.update(args)
+    #args.wandb_id = wandb.run.id
+    #logging.info(f'Wandb ID: {args.wandb_id}')
     logging.info(dump_diff_config(f'{OUT_DIR}/config.yaml', args.__dict__))
     evaluator = XMCEvaluator(args, val_loader, data_manager, 'val')
 
@@ -83,23 +83,23 @@ for epoch in range(args.num_epochs):
     for i, b in enumerate(t):
         loss = criterion(net, b)
         scaler.scale(loss.float()).backward() if args.use_grad_scaler else accelerator.backward(loss)
-        
+
         optim_bundle.step_and_zero_grad(scaler if args.use_grad_scaler else None)
         unwrap(net).update_non_parameters(epoch, global_step)
 
         epoch_loss += loss.item()
         global_step += 1
         t.set_description('Epoch: %d/%d, Loss: %.4E'%(epoch, args.num_epochs, (epoch_loss/(i+1))), refresh=True)
-        
+
     if IS_MAIN_PROC:
         epoch_loss = (epoch_loss/(i+1))
-        wandb.log({'epoch': epoch, 'loss': epoch_loss}, step=epoch)
+        #wandb.log({'epoch': epoch, 'loss': epoch_loss}, step=epoch)
         logging.info(f'Mean loss after epoch {epoch}/{args.num_epochs}: {"%.4E"%(epoch_loss)}')
         metrics = evaluator.predict_and_track_eval(unwrap(net), epoch, epoch_loss)
         if metrics is not None:
             logging.info('\n'+metrics.to_csv(sep='\t', index=False))
-            wandb.log({k: metrics.iloc[0][k] for k in ['P@1', 'P@5', 'PSP@1', 'PSP@5', 'nDCG@5', 'R@100']}, step=epoch)
-            wandb.log({'metrics': metrics}, step=epoch)
+            #wandb.log({k: metrics.iloc[0][k] for k in ['P@1', 'P@5', 'PSP@1', 'PSP@5', 'nDCG@5', 'R@100']}, step=epoch)
+            #wandb.log({'metrics': metrics}, step=epoch)
         sys.stdout.flush()
     accelerator.wait_for_everyone()
     torch.cuda.empty_cache()

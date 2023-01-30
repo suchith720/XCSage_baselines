@@ -137,36 +137,37 @@ def train(local_rank, args, end, load):
                 torch.save(model.state_dict(), ckpt_path)
                 logging.info(f"Model saved to {ckpt_path}")
 
-                logging.info("Star validation for epoch-{}".format(ep + 1))
-                acc = test_single_process(model, args, "valid")
-                logging.info("validation time:{}".format(time.time() - start_time))
-                if acc > best_acc:
-                    ckpt_path = os.path.join(args.model_dir, '{}-best.pt'.format(args.savename))
-                    torch.save(model.state_dict(), ckpt_path)
-                    logging.info(f"Model saved to {ckpt_path}")
+                #logging.info("Starting validation for epoch-{}".format(ep + 1))
+                #acc = test_single_process(model, args, "valid")
+                #logging.info("validation time:{}".format(time.time() - start_time))
+                #if acc > best_acc:
+                #    ckpt_path = os.path.join(args.model_dir, '{}-best.pt'.format(args.savename))
+                #    torch.save(model.state_dict(), ckpt_path)
+                #    logging.info(f"Model saved to {ckpt_path}")
 
-                    best_acc = acc
-                    best_count = 0
-                else:
-                    best_count += 1
-                    if best_count >= 2:
-                        start_time = time.time()
-                        ckpt_path = os.path.join(args.model_dir, '{}-best.pt'.format(args.savename))
-                        model.load_state_dict(torch.load(ckpt_path, map_location="cpu"))
-                        logging.info("Star testing for best")
+                #    best_acc = acc
+                #    best_count = 0
+                #else:
+                #    best_count += 1
+                #    if best_count >= 2:
+                #        start_time = time.time()
+                #        ckpt_path = os.path.join(args.model_dir, '{}-best.pt'.format(args.savename))
+                #        model.load_state_dict(torch.load(ckpt_path, map_location="cpu"))
+                #        logging.info("Starting testing for best")
 
-                        acc = test_single_process(model, args, "test")
-                        logging.info("test time:{}".format(time.time() - start_time))
-                        exit()
+                #        acc = test_single_process(model, args, "test")
+                #        logging.info("test time:{}".format(time.time() - start_time))
+                #        exit()
             dist.barrier()
 
         if local_rank == 0:
             start_time = time.time()
             ckpt_path = os.path.join(args.model_dir, '{}-best.pt'.format(args.savename))
             model.load_state_dict(torch.load(ckpt_path, map_location="cpu"))
-            logging.info("Star testing for best")
-            acc = test_single_process(model, args, "test")
-            logging.info("test time:{}".format(time.time() - start_time))
+            #logging.info("Starting testing for best")
+            #acc = test_single_process(model, args, "test")
+            #logging.info("test time:{}".format(time.time() - start_time))
+
         dist.barrier()
         cleanup()
     except:
