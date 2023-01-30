@@ -13,8 +13,8 @@ fi
 
 model_type=$2
 
-#./data.sh $main_dir G-LF-WikiSeeAlsoTitles-300K graph,category
-./run.sh G-LF-WikiSeeAlsoTitles-300K $model_type
+./data.sh $main_dir G-LF-WikiSeeAlsoTitles-300K graph,category
+/run.sh G-LF-WikiSeeAlsoTitles-300K $model_type
 
-#./data.sh $main_dir G-LF-AmazonTitles-1.6M similar_graph,also_view_graph
-#./run.sh G-LF-AmazonTitles-1.6M
+./data.sh $main_dir G-LF-AmazonTitles-1.6M similar_graph,also_view_graph
+./run.sh G-LF-AmazonTitles-1.6M $model_type
