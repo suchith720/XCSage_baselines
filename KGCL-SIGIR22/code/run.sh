@@ -18,5 +18,5 @@ then
     exit
 fi
 
-python main.py --dataset=$dataset_name --topks=[3000] --model=$model_type --bpr_batch=1000 \
-    --testbatch=1000 --epochs=10
+python main.py --dataset=$dataset_name --topks=[3000] --model=$model_type --bpr_batch=100 \
+    --testbatch=1000 --epochs=100

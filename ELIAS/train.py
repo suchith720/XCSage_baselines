@@ -48,10 +48,10 @@ data_manager = DATA_MANAGERS[args.data_manager](args)
 trn_loader, val_loader, _ = data_manager.build_data_loaders()
 
 if IS_MAIN_PROC:
-    #wandb.init(project=f'{args.project}_{args.dataset}', name=args.expname)
-    #wandb.config.update(args)
-    #args.wandb_id = wandb.run.id
-    #logging.info(f'Wandb ID: {args.wandb_id}')
+    wandb.init(project=f'{args.project}_{args.dataset}', name=args.expname)
+    wandb.config.update(args)
+    args.wandb_id = wandb.run.id
+    logging.info(f'Wandb ID: {args.wandb_id}')
     logging.info(dump_diff_config(f'{OUT_DIR}/config.yaml', args.__dict__))
     evaluator = XMCEvaluator(args, val_loader, data_manager, 'val')
 
@@ -93,13 +93,13 @@ for epoch in range(args.num_epochs):
 
     if IS_MAIN_PROC:
         epoch_loss = (epoch_loss/(i+1))
-        #wandb.log({'epoch': epoch, 'loss': epoch_loss}, step=epoch)
+        wandb.log({'epoch': epoch, 'loss': epoch_loss}, step=epoch)
         logging.info(f'Mean loss after epoch {epoch}/{args.num_epochs}: {"%.4E"%(epoch_loss)}')
         metrics = evaluator.predict_and_track_eval(unwrap(net), epoch, epoch_loss)
         if metrics is not None:
             logging.info('\n'+metrics.to_csv(sep='\t', index=False))
-            #wandb.log({k: metrics.iloc[0][k] for k in ['P@1', 'P@5', 'PSP@1', 'PSP@5', 'nDCG@5', 'R@100']}, step=epoch)
-            #wandb.log({'metrics': metrics}, step=epoch)
+            wandb.log({k: metrics.iloc[0][k] for k in ['P@1', 'P@5', 'PSP@1', 'PSP@5', 'nDCG@5', 'R@100']}, step=epoch)
+            wandb.log({'metrics': metrics}, step=epoch)
         sys.stdout.flush()
     accelerator.wait_for_everyone()
     torch.cuda.empty_cache()

@@ -17,8 +17,6 @@ from os.path import join
 
 # Changing the visible GPUs.
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-
 # ==============================
 utils.set_seed(world.seed)
 print(">>SEED:", world.seed)

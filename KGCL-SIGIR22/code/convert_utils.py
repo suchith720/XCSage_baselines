@@ -101,16 +101,15 @@ def extract_xc_node_id(filename):
 
 def create_knowledge_graph(graphs, graph_ids, save_dir):
     os.makedirs(save_dir, exist_ok=True)
-
     #import pdb; pdb.set_trace()
-
     node_vocab = {}
     with open(f'{save_dir}/kg.txt', 'w') as file:
         for n, (graph, graph_id) in enumerate(zip(graphs, graph_ids)):
             for r, row in tqdm(enumerate(graph), total=graph.shape[0]):
                 col = row.indices
                 for c in col:
-                    node_id = node_vocab.setdefault(graph_id[c], len(node_vocab))
+                    node_id = node_vocab.setdefault(graph_id[c],
+                                                    len(node_vocab))
                     row_str = f'{r} 0 {node_id}\n'
                     file.write(row_str)
 
