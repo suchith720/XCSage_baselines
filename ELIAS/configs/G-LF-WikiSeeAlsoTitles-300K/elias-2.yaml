@@ -6,7 +6,7 @@ expname: 'ELIAS-2' # Experiment name
 dataset: 'G-LF-WikiSeeAlsoTitles-300K' # Dataset name
 net: elias-2 # Network class identifier
 loss: elias-loss # Loss class identifier
-tf_max_len: 128 # Maximum input sequence length of transformer
+tf_max_len: 32 # Maximum input sequence length of transformer
 resume_path: Results/[project]/[dataset]/Stage-1-0-prev/model.pt
 
 # Network parameters
