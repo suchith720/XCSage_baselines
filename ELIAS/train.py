@@ -25,7 +25,8 @@ args = load_config_and_runtime_args(sys.argv)
 
 args.device = str(accelerator.device)
 args.amp = accelerator.state.use_fp16
-args.num_gpu = accelerator.state.num_processes
+#args.num_gpu = accelerator.state.num_processes
+args.num_gpu = 2
 args.use_grad_scaler = ((not args.amp) and (args.num_gpu == 1) and args.amp_encode)
 args.hostname = socket.gethostname()
 args.exp_start_time = time.ctime()

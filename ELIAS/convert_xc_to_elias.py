@@ -23,6 +23,19 @@ trn_x_y = extract_xc_data(trn_x_y_str)
 tst_x_y_str = read_data(f'{xc_dir}/{xc_dataset_name}/tst_X_Y.txt')
 tst_x_y = extract_xc_data(tst_x_y_str)
 
+graph_trn_x_y_str = read_data(f'{xc_dir}/{xc_dataset_name}/graph_trn_X_Y.txt')
+graph_trn_x_y = extract_xc_data(graph_trn_x_y_str)
+
+graph_tst_x_y_str = read_data(f'{xc_dir}/{xc_dataset_name}/graph_tst_X_Y.txt')
+graph_tst_x_y = extract_xc_data(graph_tst_x_y_str)
+
+graph_lbl_x_y_str = read_data(f'{xc_dir}/{xc_dataset_name}/graph_lbl_X_Y.txt')
+graph_lbl_x_y = extract_xc_data(graph_lbl_x_y_str)
+
+#debug
+import pdb; pdb.set_trace()
+#debug
+
 elias_dir = f'{save_dir}/{xc_dataset_name}'
 os.makedirs(elias_dir, exist_ok=True)
 
