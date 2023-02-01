@@ -1,6 +1,6 @@
 if [ $# -lt 2 ]
 then
-    echo ./data.sh "<xc_dir> <data_name>"
+    echo ./data.sh "<xc_dir> <data_name=G-LF-WikiSeeAlsoTitles-300K or G-LF-AmazonTitles-1.6M>"
     exit 1
 fi
 

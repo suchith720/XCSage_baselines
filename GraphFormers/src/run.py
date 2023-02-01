@@ -282,7 +282,6 @@ def test_xc(args):
 
     return
 
-
     print("Computing Score Matrix..")
     test_dataloader = torch.utils.data.DataLoader(test_embeddings, batch_size=args.sm_batch_size,
                                                   shuffle=False, num_workers=4)

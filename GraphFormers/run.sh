@@ -58,7 +58,7 @@ python main.py --mode=$mode \
     --tst_raw_text=$main_dir/raw_data/test.raw.txt \
     --tst_x_y=$main_dir/$graph_type'graph_tst_X_Y.txt' \
     --load_ckpt_name=ckpt/GraphFormers_$dataset_name'_'$graph_type'_3_'-epoch-1.pt \
-    --lr=1e-5 --top_k=3000
+    --lr=1e-6 --top_k=3000
 
 
 #for epoch in $(seq 1 3)

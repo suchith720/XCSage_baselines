@@ -7,10 +7,10 @@ dataset: 'G-LF-AmazonTitles-1.6M' # Dataset name
 net: elias-2 # Network class identifier
 loss: elias-loss # Loss class identifier
 tf_max_len: 32 # Maximum input sequence length of transformer
-resume_path: Results/[project]/[dataset]/Stage-1-0-prev/model.pt
+resume_path: Results/[project]/[dataset]/ELIAS-1/model.pt
 
 # Network parameters
-A_init_path: Results/[project]/[dataset]/Stage-1-0-prev/A_approx.npz # Initialize label-cluster adjacency matrix from this file (expects *.npz file)
+A_init_path: Results/[project]/[dataset]/ELIAS-1/A_approx.npz # Initialize label-cluster adjacency matrix from this file (expects *.npz file)
 loss_lambda: 0.05
 
 # Training parameters

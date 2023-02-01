@@ -75,7 +75,7 @@ tst_bow = extract_xc_data(tst_bow_str)
 elias_dir = f'{save_dir}/{xc_dataset_name}'
 os.makedirs(elias_dir, exist_ok=True)
 
-sp.save_npz(f'{elias_dir}/X.trn.npz', trn_x_y)
-sp.save_npz(f'{elias_dir}/X.tst.npz', tst_x_y)
+sp.save_npz(f'{elias_dir}/X.trn.npz', trn_bow)
+sp.save_npz(f'{elias_dir}/X.tst.npz', tst_bow)
 
 

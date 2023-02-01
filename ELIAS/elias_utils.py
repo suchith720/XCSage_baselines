@@ -2,6 +2,7 @@ from accelerate import Accelerator
 accelerator = Accelerator()
 IS_MAIN_PROC = accelerator.is_main_process
 
+from tqdm import tqdm
 import os, sys, yaml, logging
 import logging.config
 import scipy.sparse as sp
@@ -22,7 +23,7 @@ if torch.__version__ > "1.11":
 # Config and runtime argument parsing
 mode = sys.argv[1]
 args = load_config_and_runtime_args(sys.argv[1:], no_model=False)
-    
+
 args.device = str(accelerator.device)
 args.amp = accelerator.state.use_fp16
 args.num_gpu = accelerator.state.num_processes
@@ -30,6 +31,9 @@ args.DATA_DIR = DATA_DIR = f'Datasets/{args.dataset}'
 args.OUT_DIR = OUT_DIR = args.OUT_DIR if hasattr(args, 'OUT_DIR') else f'Results/{args.project}/{args.dataset}/{args.expname}'
 args.wandb_id = args.wandb_id if hasattr(args, 'wandb_id') else 'None'
 args.resume_path = f'{args.OUT_DIR}/model.pt'
+#debug
+print(args)
+#debug
 if mode == 'gen_cluster_A' or mode == 'gen_approx_A':
     args.num_val_points = 0
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -66,10 +70,10 @@ if mode == 'gen_cluster_A':
         trn_embs = sp.hstack(trn_embs) if len(trn_embs) > 1 else trn_embs[0]
         lbl_centroids = normalize(trn_X_Y.T.tocsr().dot(trn_embs).astype(np.float32), copy=False)
 
-        cmat = Indexer.gen(lbl_centroids, 
-                           indexer_type="hierarchicalkmeans", 
-                           nr_splits=int(2**np.ceil(np.log2(args.numy/args.max_leaf))), 
-                           max_leaf_size=args.max_leaf, 
+        cmat = Indexer.gen(lbl_centroids,
+                           indexer_type="hierarchicalkmeans",
+                           nr_splits=int(2**np.ceil(np.log2(args.numy/args.max_leaf))),
+                           max_leaf_size=args.max_leaf,
                            seed=args.cmat_seed).chain[-1].T
         sp.save_npz(f'{args.OUT_DIR}/cmat.npz', cmat)
 
@@ -126,7 +130,7 @@ if mode == 'sparse_ranker':
         prob = MLProblem(trn_ranker_embs, trn_labels, C=sp.identity(trn_labels.shape[1]).tocsr(), M=trn_score_mat, R=None)
         mlm = MLModel.train(prob)
         mlm.pred_params.post_processor = 'l3-hinge'
-        val_ranker_score_mat = mlm.predict(val_ranker_embs, csr_codes=val_score_mat.astype(np.float32), only_topk=val_score_mat.shape[1])    
+        val_ranker_score_mat = mlm.predict(val_ranker_embs, csr_codes=val_score_mat.astype(np.float32), only_topk=val_score_mat.shape[1])
         tst_ranker_score_mat = mlm.predict(tst_ranker_embs, csr_codes=tst_score_mat.astype(np.float32), only_topk=tst_score_mat.shape[1])
 
         if args.ranker_calibrate:
@@ -147,10 +151,11 @@ if mode == 'sparse_ranker':
                     res = smats[0].copy()
                     res[temp.row, temp.col] = clf.predict_proba(scores)[:, 1]
                     return res.tocsr()
-            clf = tree.DecisionTreeClassifier(max_depth=5)
-            clf = clf.fit(*process_tree_fts([val_ranker_score_mat, val_score_mat], tmat=val_loader.dataset.labels, mode='train'))
-            tst_ranker_score_mat = process_tree_fts([tst_ranker_score_mat, tst_score_mat], clf=clf, mode='test')*0.3 + tst_ranker_score_mat*0.7
-
+#             clf = tree.DecisionTreeClassifier(max_depth=5)
+#             clf = clf.fit(*process_tree_fts([val_ranker_score_mat, val_score_mat], tmat=val_loader.dataset.labels, mode='train'))
+#             tst_ranker_score_mat = process_tree_fts([tst_ranker_score_mat, tst_score_mat], clf=clf, mode='test')
+#             *0.3 + tst_ranker_score_mat*0.7
+#         tst_ranker_score_mat = tst_score_mat*0.3 + tst_ranker_score_mat*0.7
         evaluator = XMCEvaluator(args, tst_loader, data_manager, prefix='tst_ranker')
         metrics = evaluator.eval(tst_ranker_score_mat)
         logging.info('\n'+metrics.to_csv(sep='\t', index=False))
