@@ -151,11 +151,9 @@ if mode == 'sparse_ranker':
                     res = smats[0].copy()
                     res[temp.row, temp.col] = clf.predict_proba(scores)[:, 1]
                     return res.tocsr()
-#             clf = tree.DecisionTreeClassifier(max_depth=5)
-#             clf = clf.fit(*process_tree_fts([val_ranker_score_mat, val_score_mat], tmat=val_loader.dataset.labels, mode='train'))
-#             tst_ranker_score_mat = process_tree_fts([tst_ranker_score_mat, tst_score_mat], clf=clf, mode='test')
-#             *0.3 + tst_ranker_score_mat*0.7
-#         tst_ranker_score_mat = tst_score_mat*0.3 + tst_ranker_score_mat*0.7
+            clf = tree.DecisionTreeClassifier(max_depth=5)
+            clf = clf.fit(*process_tree_fts([val_ranker_score_mat, val_score_mat], tmat=val_loader.dataset.labels, mode='train'))
+            tst_ranker_score_mat = process_tree_fts([tst_ranker_score_mat, tst_score_mat], clf=clf, mode='test')*0.3 + tst_ranker_score_mat*0.7
         evaluator = XMCEvaluator(args, tst_loader, data_manager, prefix='tst_ranker')
         metrics = evaluator.eval(tst_ranker_score_mat)
         logging.info('\n'+metrics.to_csv(sep='\t', index=False))

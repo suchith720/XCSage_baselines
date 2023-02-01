@@ -17,4 +17,4 @@ then
     exit 1
 fi
 
-python convert_xc_to_elias.py --xc_dir=$1 --data_name=$data_name --save_dir=Datasets/
+echo python convert_xc_to_pecos.py --xc_dir=$1 --data_name=$data_name --save_dir=Datasets/
