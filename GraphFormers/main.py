@@ -13,8 +13,6 @@ if __name__ == "__main__":
     setuplogging()
 
     os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12499'
-
     device_list = ""
     for i, device_id in enumerate(os.environ['CUDA_VISIBLE_DEVICES'].split(',')):
         if i == 0:
@@ -38,7 +36,7 @@ if __name__ == "__main__":
         print('-----------train------------')
         if args.multi_world_size > 1:
             mp.freeze_support()
-            mgr = mp.Manager()
+            mgr = mp.Manager(address=("", os.environ["MAIN_PORT"]))
             end = mgr.Value('b', False)
             mp.spawn(train,
                      args=(args, end, cont),
@@ -57,3 +55,5 @@ if __name__ == "__main__":
         #args.load_ckpt_name = "/data/workspace/Share/junhan/TopoGram_ckpt/dblp/topogram-pretrain-finetune-dblp-best3.pt"
         print('-------------test_xc--------------')
         test_xc(args)
+
+

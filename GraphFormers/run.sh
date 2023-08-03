@@ -10,8 +10,8 @@ data_dir=${work_dir}/data/$dataset_name
 save_dir=${work_dir}/XC/data/GraphTransoformer/$dataset_name
 mkdir -p $save_dir
 
-# +
 echo Creating Training dataset.
+
 python convert_xc2gf_dataset.py --trn_x_y=$data_dir/trn_X_Y.txt \
     --graph_trn_x_y=$data_dir/$graph_type'_trn_X_Y.txt' \
     --graph_lbl_x_y=$data_dir/$graph_type'_lbl_X_Y.txt' \
@@ -29,7 +29,6 @@ python convert_xc2gf_dataset.py --trn_x_y=$data_dir/tst_X_Y.txt \
     --lbl_raw_text=$data_dir/raw_data/label.raw.txt \
     --graph_raw_text=$data_dir/raw_data/$graph_type'.raw.txt' \
     --save_path=$save_dir/test.tsv
-# -
 
 python main.py --mode="train" \
     --train_data_path=$save_dir/train.tsv \

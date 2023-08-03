@@ -2,7 +2,7 @@ import random
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from scipy.sparse import csr_matrix, load_npz
+from scipy.sparse import csr_matrix
 from xclib.data import data_utils as du
 
 
@@ -12,16 +12,11 @@ def read_data(filename):
     return df
 
 
-
-# +
-from scipy.sparse import csr_matrix, load_npz
-
 def extract_xc_data(content):
-    try:
-        return du.read_sparse_file(content)
-    except Exception as e:
-        return load_npz(content.replace(".txt", ".npz"))
     
+    return du.read_sparse_file(content)
+
+
 def extract_title_data(filename):
 
     with open(filename, encoding='utf-8') as file:
@@ -30,16 +25,10 @@ def extract_title_data(filename):
     raw_txt = list()
     for line in content:
         line = line.strip()
-        data = line.split('->', 1)
-        if len(data) == 2:
-            text = data[1]
-        else:
-            text = line
+        _, text = line.split('->', 1)
         raw_txt.append(text)
     return raw_txt
 
-
-# -
 
 def get_neighbours(row_num, graph, graph_text):
     neighbours_text = []
