@@ -35,8 +35,8 @@ python main.py --mode="train" \
     --valid_data_path=$save_dir/valid.tsv \
     --test_data_path=$save_dir/test.tsv \
     --savename=GraphFormers_$dataset_name'_'$graph_type \
-    --world_size=1 --multi_world_size=1 --token_length=32 --neighbor_num=5 \
-    --epochs=100 --log_steps=2 \
+    --world_size=1 --multi_world_size=1 --token_length=64 --neighbor_num=3 \
+    --epochs=5 --log_steps=2 \
     --train_batch_size=50 --valid_batch_size=100 \
     --test_batch_size=100 --embed_batch_size=100 \
     --sm_batch_size=1024 \

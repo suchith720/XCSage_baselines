@@ -16,6 +16,7 @@ parser.add_argument('--valid_path', type=str, help='Path to save validation data
 
 
 if __name__ == '__main__':
+    exit()
     args = parser.parse_args()
 
     """
@@ -26,8 +27,7 @@ if __name__ == '__main__':
     train_text_file = args.trn_raw_text
     label_text_file = args.lbl_raw_text
 
-    trn_x_y_str = read_data(train_file)
-    trn_x_y_mat = extract_xc_data(trn_x_y_str)
+    trn_x_y_mat = extract_xc_data(train_file)
     trn_raw_txt = extract_title_data(train_text_file)
     lbl_raw_txt = extract_title_data(label_text_file)
 
@@ -35,10 +35,8 @@ if __name__ == '__main__':
     graph_label_file = args.graph_lbl_x_y
     graph_text_file = args.graph_raw_text
 
-    graph_trn_x_y_str = read_data(graph_train_file)
-    graph_trn_x_y_mat = extract_xc_data(graph_trn_x_y_str)
-    graph_lbl_x_y_str = read_data(graph_label_file)
-    graph_lbl_x_y_mat = extract_xc_data(graph_lbl_x_y_str)
+    graph_trn_x_y_mat = extract_xc_data(graph_train_file)
+    graph_lbl_x_y_mat = extract_xc_data(graph_label_file)
     graph_raw_txt = extract_title_data(graph_text_file)
 
 

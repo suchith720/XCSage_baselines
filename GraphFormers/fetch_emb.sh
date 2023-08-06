@@ -2,11 +2,11 @@ export CUDA_VISIBLE_DEVICES=$1
 export MASTER_PORT=$2
 
 
-work_dir=${HOME}/XC
+work_dir=${HOME}/scratch/XC
 dataset_name=$3
 graph_type=$4
-data_dir=${HOME}/data/$dataset_name
-save_dir=${HOME}/XC/data/GraphTransoformer/$dataset_name
+data_dir=${HOME}/scratch/XC/data/$dataset_name
+save_dir=${HOME}/ecratch/XC/data/GraphTransoformer/$dataset_name
 mkdir -p $save_dir
 
 python main.py --mode="test_xc" \
